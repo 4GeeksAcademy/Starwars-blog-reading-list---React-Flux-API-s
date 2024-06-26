@@ -9,14 +9,14 @@ export const Carousell = ({ id, data, type }) => {
   console.log(type);
   console.log(id);
 
-  const handleAddToFavorites = (item) => {
-    if (!isFavorite(item)) {
-      actions.addToFavorites(item);
+  const handleAddToFavorites = (item, itemType) => {
+    if (!isFavorite(item, itemType)) {
+      actions.addToFavorites({ ...item, type: itemType });
     }
   };
 
-  const isFavorite = (item) => {
-    return store.favorites.some(favorite => favorite.uid === item.uid);
+  const isFavorite = (item, itemType) => {
+    return store.favorites.some(favorite => favorite.uid === item.uid && favorite.type === itemType);
   };
 
   const handleImageError = (e) => {
@@ -38,8 +38,8 @@ export const Carousell = ({ id, data, type }) => {
             <div className="carousel-caption d-md-block">
               <h1>{item.name}</h1>
               <div className="d-flex align-items-center justify-content-center">
-                <span onClick={() => handleAddToFavorites(item)} >
-                  <i className={`fa-star ${isFavorite(item) ? "fa-solid" : "fa-regular"} fs-1 text-warning p-2`} ></i>
+                <span onClick={() => handleAddToFavorites(item, type)} >
+                  <i className={`fa-star ${isFavorite(item, type) ? "fa-solid" : "fa-regular"} fs-1 text-warning p-2`} ></i>
                 </span>
                 <Link to={`/details/${type}/${item.uid}`} className="btn btn-outline-success fw-bold">
                   View Details

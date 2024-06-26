@@ -4,7 +4,7 @@ import { Context } from "../store/appContext";
 
 
 export const DetailedView = () => {
-	const { store } = useContext(Context);
+	const { store, actions } = useContext(Context);
 	const { uid, type } = useParams();
 	console.log(type);
 
@@ -18,6 +18,21 @@ export const DetailedView = () => {
 	// 	return <div>Loading...</div>
 	// }
 	console.log(item);
+
+	const handleImageError = (e) => {
+		e.target.src = 'https://starwars-visualguide.com/assets/img/big-placeholder.jpg';
+	};
+
+	const handleAddToFavorites = (item, itemType) => {
+		if (!isFavorite(item, itemType)) {
+			actions.addToFavorites({ ...item, type: itemType });
+		}
+	};
+
+	const isFavorite = (item) => {
+		return store.favorites.some(favorite => favorite.uid === item.uid);
+	};
+
 	// Renderizado condicional para los diferentes tipos de elementos
 	const renderDetails = () => {
 		switch (type) {
@@ -59,17 +74,20 @@ export const DetailedView = () => {
 	useEffect(() => {
 		if (uid && type) {
 			if (type == "people" && store.peopleWithDetails.length > 0) {
-				const currentDetail = store.peopleWithDetails.find(element => element.uid === uid)
+				const currentDetail = store.peopleWithDetails.find(element => element.result.uid === uid)?.result.properties
 				setItem(currentDetail)
 			}
 		}
 	}, [uid, store.peopleWithDetails])
 
 	useEffect(() => {
+		console.log(uid, type);
 		if (uid && type) {
+			console.log(store.planetWithDetails);
 			if (type == "planet" && store.planetWithDetails.length > 0) {
-				const currentDetail = store.planetWithDetails.find(element => element.uid === uid)
+				const currentDetail = store.planetWithDetails.find(element => element.result.uid == uid)?.result.properties
 				console.log(currentDetail);
+				console.log(store.planetWithDetails);
 				setItem(currentDetail)
 			}
 		}
@@ -78,7 +96,7 @@ export const DetailedView = () => {
 	useEffect(() => {
 		if (uid && type) {
 			if (type == "starship" && store.starshipsWithDetails.length > 0) {
-				const currentDetail = store.starshipsWithDetails.find(element => element.uid === uid)
+				const currentDetail = store.starshipsWithDetails.find(element => element.result.uid === uid)?.result.properties
 				setItem(currentDetail)
 			}
 		}
@@ -87,20 +105,26 @@ export const DetailedView = () => {
 
 
 	return (
-		<div className="card" style={{ width: "18rem" }}>
-			<img src={`https://starwars-visualguide.com/assets/img/${item.type}/${item.uid}.jpg`} className="card-img-top" alt={item.name} />
+		<div className="card col-11" data-bs-theme="dark">
+			<img src={`https://starwars-visualguide.com/assets/img/${type === "people" ? "characters" : type === "planet" ? "planets" : "starships"}/${uid}.jpg`}
+				className="card-img-top"
+				alt={item?.name}
+				onError={handleImageError} />
 			<div className="card-body">
-				<h5 className="card-title">{item.name}</h5>
-				<p className="card-text">{item.description || 'No description available.'}</p>
+				<div className="d-flex align-content-center">
+					<h1 className="card-title">{item?.name}</h1>
+					<span onClick={() => handleAddToFavorites(item, type)} >
+						<i className={`fa-star ${isFavorite(item, type) ? "fa-solid" : "fa-regular"} fs-1 text-warning p-2`} ></i>
+					</span>
+				</div>
+				<p className="card-text">{item?.description || 'No description available.'}</p>
 			</div>
 			<ul className="list-group list-group-flush">
 				{renderDetails()}
 			</ul>
 			<div className="card-body">
-				<Link to="/" className="btn btn-primary">Back Home</Link>
+				<Link to="/" className="btn btn-success">Back Home</Link>
 			</div>
 		</div>
 	);
 };
-
-//result .propertores hay id?
