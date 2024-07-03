@@ -11,8 +11,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 		},
 		actions: {
 
-
-
 			getPeople: async () => {
 				try {
 					let response = await fetch("https://www.swapi.tech/api/people");

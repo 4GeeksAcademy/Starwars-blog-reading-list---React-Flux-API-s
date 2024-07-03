@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Context } from "../store/appContext";
 
 import "../../styles/demo.css";
@@ -11,6 +11,13 @@ export const Fav = () => {
 		actions.removeFavorite(item);
 	};
 
+	const handleFavoriteClick = (favorite) => {
+		const targetPath = `/details/${favorite.type}/${favorite.uid}`;
+		if (location.pathname !== targetPath) {
+			navigate(targetPath);
+		}
+	};
+
 	return (
 		<div className="dropdown">
 			<button className="btn btn-outline-warning dropdown-toggle"
@@ -20,11 +27,13 @@ export const Fav = () => {
 				aria-expanded="false">
 				Favorites
 			</button>
-			<ul className="dropdown-menu" aria-labelledby="favoritesDropdown">
+			<ul className="dropdown-menu dropdown-menu-end" aria-labelledby="favoritesDropdown">
 				{store.favorites.length > 0 ? (
 					store.favorites.map((favorite, index) => (
 						<li className="d-flex align-content-between" key={index}>
-							<Link className="dropdown-item" to={`/detail/${favorite.type}/${favorite.uid}`}>
+							<Link
+								className="dropdown-item"
+								onClick={() => handleFavoriteClick(favorite)}>
 								{favorite.name}
 							</Link>
 							<span

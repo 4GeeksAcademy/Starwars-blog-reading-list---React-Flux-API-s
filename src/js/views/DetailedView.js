@@ -6,41 +6,60 @@ import { Context } from "../store/appContext";
 export const DetailedView = () => {
 	const { store, actions } = useContext(Context);
 	const { uid, type } = useParams();
-	console.log(type);
-
-	// Encuentra el elemento en las listas de personajes, planetas o naves espaciales
+	const navigate = useNavigate();
 	const [item, setItem] = useState({})
-	// // Below for 
-	// const types = ["people", "planet", "starship"];
-	useEffect(() => {
-		const currentDetailsList = {
-			'people': store.peopleWithDetails,
-			'planet': store.planetWithDetails,
-			'starship': store.starshipsWithDetails
-		}[type];
 
-		if (uid && currentDetailsList.length > 0) {
-			const currentDetail = currentDetailsList.find(element => element.result.uid === uid);
+
+	const getCurrentDetails = (type) => {
+		const typeMap = {
+			people: store.peopleWithDetails,
+			planet: store.planetWithDetails,
+			starship: store.starshipsWithDetails
+		};
+
+		const detailsList = typeMap[type];
+		return detailsList ? detailsList.find(element => element.result.uid === uid) : null;
+	};
+
+	useEffect(() => {
+		if (uid && store.peopleWithDetails.length > 0 && store.planetWithDetails.length > 0 && store.starshipsWithDetails) {
+			const currentDetail = getCurrentDetails(type)
+			console.log(currentDetail);
 			setItem(currentDetail ? currentDetail.result : {});
 		}
-	}, [uid, type, store]);
+	}, [uid, type, store.peopleWithDetails, store.planetWithDetails, store.starshipsWithDetails]);
 
 
-	console.log(item.id);
-	// const handleImageError = (e) => {
-	// 	e.target.src = 'https://starwars-visualguide.com/assets/img/big-placeholder.jpg';
-	// };
 
-	// const handleAddToFavorites = (item, itemType) => {
-	// 	if (!isFavorite(item, itemType)) {
-	// 		actions.addToFavorites({ ...item, type: itemType });
-	// 	}
-	// };
+	const navigateTo = (direction) => {
+		const typeMap = {
+			people: store.peopleWithDetails,
+			planet: store.planetWithDetails,
+			starship: store.starshipsWithDetails
+		};
 
-	// const isFavorite = (item) => {
-	// 	return store.favorites.some(
-	// 		favorite => favorite.uid === item.uid && favorite.type === currentType);
-	// };
+		const currentDetailsList = typeMap[type] || [];
+		const currentIndex = currentDetailsList.findIndex(element => element.result.uid === uid);
+		const newIndex = (currentIndex + direction + currentDetailsList.length) % currentDetailsList.length;
+		const newUid = currentDetailsList[newIndex].result.uid;
+		navigate(`/details/${type}/${newUid}`);
+	};
+
+
+	console.log(item);
+	const handleImageError = (e) => {
+		e.target.src = 'https://starwars-visualguide.com/assets/img/big-placeholder.jpg';
+	};
+
+	const handleAddToFavorites = (item) => {
+		if (!isFavorite(item)) {
+			actions.addToFavorites({ ...item, name: item.properties?.name, type });
+		}
+	};
+
+	const isFavorite = (item) => {
+		return store.favorites.some(favorite => favorite.uid === item.uid && favorite.type === type);
+	};
 
 	// Renderizado condicional para los diferentes tipos de elementos
 	const renderDetails = () => {
@@ -101,69 +120,22 @@ export const DetailedView = () => {
 
 		}
 	};
-	console.log(item?.result?.model);
-
-	// const handleNext = () => {
-	// 	const currentIndex = types.indexOf(currentType);
-	// 	const newIndex = (currentIndex + 1) % types.length;
-	// 	setCurrentType(types[newIndex]);
-	// };
-
-	// const handlePrev = () => {
-	// 	const currentIndex = types.indexOf(currentType);
-	// 	const newIndex = (currentIndex - 1 + types.length) % type.length;
-	// 	setCurrentType(types[newIndex]);
-	// };
-
-
-	// useEffect(() => {
-	// 	if (uid && type) {
-	// 		if (type == "people" && store.peopleWithDetails.length > 0) {
-	// 			const currentDetail = store.peopleWithDetails.find(element => element.result.uid === uid)?.result
-	// 			setItem(currentDetail)
-	// 		}
-	// 	}
-	// }, [uid, store.peopleWithDetails])
-
-	// useEffect(() => {
-	// 	console.log(uid, type);
-	// 	if (uid && type) {
-	// 		console.log(store.planetWithDetails);
-	// 		if (type == "planet" && store.planetWithDetails.length > 0) {
-	// 			const currentDetail = store.planetWithDetails.find(element => element.result.uid == uid)?.result
-	// 			console.log(currentDetail);
-	// 			console.log(store.planetWithDetails);
-	// 			setItem(currentDetail)
-	// 		}
-	// 	}
-	// }, [uid, store.planetWithDetails])
-
-	// useEffect(() => {
-	// 	if (uid && type) {
-	// 		if (type == "starship" && store.starshipsWithDetails.length > 0) {
-	// 			const currentDetail = store.starshipsWithDetails.find(element => element.result.uid === uid)?.result
-	// 			setItem(currentDetail)
-	// 		}
-	// 	}
-	// }, [uid, store.startshipsWithDetails])
-
 
 
 	return (
-		<div className="card col-11" data-bs-theme="dark">
+		<div className="card col-11 mx-auto" data-bs-theme="dark">
 			<img src={`https://starwars-visualguide.com/assets/img/${type === "people" ? "characters" : type === "planet" ? "planets" : "starships"}/${uid}.jpg`}
 				className="card-img-top"
 				alt={item.properties?.name}
-			//onError={handleImageError} 
+				onError={handleImageError}
 			/>
 			<div className="card-body">
 				<div className="d-flex align-content-center">
 					<h1 className="card-title">{item.properties?.name}</h1>
-					<span
-					//onClick={() => handleAddToFavorites(item, type)} 
-					>
-						<i
-						//className={`fa-star ${isFavorite(item, type) ? "fa-solid" : "fa-regular"} fs-1 text-warning p-2`} 
+					<span onClick={() => handleAddToFavorites(item)}>
+						<i className={`fa-star 
+						${isFavorite(item) ? "fa-solid" : "fa-regular"} 
+						fs-1 text-warning p-2`}
 						></i>
 					</span>
 				</div>
@@ -180,24 +152,68 @@ export const DetailedView = () => {
 			<div className="card-body d-flex justify-content-between">
 				<button
 					className="btn btn-outline-secondary col-5"
-				//onClick={() => navigate(`/details/${direction.previous}`)}
+					onClick={() => navigateTo(-1)}
 				>Previous</button>
 				<button
 					className="btn btn-outline-secondary col-5"
-				//onClick={handleNext}
+					onClick={() => navigateTo(1)}
 				>Next</button>
 			</div>
 
 		</div>
 	);
 };
-//Fix next buttons at DetailedView
 
-//donde esta el undefined mon 1 jul
+//COMMENTS
 
-//AL cargal una vista detallada pierde los datos de detailLists
-//Subir description un nivel 
-//centrar detailed 
+// const getCurrentDetails = (type) => {
+// 	if (type == "people") {
+// 		return store.peopleWithDetails.find(element => element.result.uid === uid)
+// 	} else if (type == "planet") {
+// 		return store.planetWithDetails.find(element => element.result.uid === uid)
+// 	} else if (type == "starship") {
+// 		return store.starshipsWithDetails.find(element => element.result.uid === uid)
+// 	}
 
-//detailed view de back up +s
-//el nuevo se conecta c
+// };
+
+// const getCurrentDetailsList = (store, type) => {
+// 	return {
+// 		'people': store.peopleWithDetails,
+// 		'planet': store.planetWithDetails,
+// 		'starship': store.starshipsWithDetails
+// 	}[type] || [];
+// };
+
+// useEffect(() => {
+// 	const currentDetailsList = getCurrentDetailsList(store, type);
+// 	if (uid && currentDetailsList.length > 0) {
+// 		const currentDetail = currentDetailsList.find(element => element.result.uid === uid);
+// 		console.log(currentDetail);
+// 		setItem(currentDetail ? currentDetail.result : {});
+// 	}
+// }, [uid, type, store]);
+
+// const navigateTo = (direction) => {
+// 	let currentDetailsList = [];
+// 	if (type == "people") {
+// 		currentDetailsList = store.peopleWithDetails
+// 	} else if (type == "planet") {
+// 		currentDetailsList = store.planetWithDetails
+// 	} else if (type == "starship") {
+// 		currentDetailsList = store.starshipsWithDetails
+// 	}
+// 	const currentIndex = currentDetailsList.findIndex(element => element.result.uid === uid);
+// 	const newIndex = (currentIndex + direction + currentDetailsList.length) % currentDetailsList.length;
+// 	const newUid = currentDetailsList[newIndex].result.uid;
+// 	navigate(`/details/${type}/${newUid}`);
+// };
+
+
+// const navigateTo = (direction) => {
+// 	const currentDetailsList = getCurrentDetailsList(store, type);
+// 	const currentIndex = currentDetailsList.findIndex(element => element.result.uid === uid);
+// 	const newIndex = (currentIndex + direction + currentDetailsList.length) % currentDetailsList.length;
+// 	const newUid = currentDetailsList[newIndex].result.uid;
+// 	navigate(`/details/${type}/${newUid}`);
+// };
