@@ -24,7 +24,7 @@ export const Fav = () => {
 				{store.favorites.length > 0 ? (
 					store.favorites.map((favorite, index) => (
 						<li className="d-flex align-content-between" key={index}>
-							<Link className="dropdown-item" to={`/detail/${favorite.uid}`}>
+							<Link className="dropdown-item" to={`/detail/${favorite.type}/${favorite.uid}`}>
 								{favorite.name}
 							</Link>
 							<span

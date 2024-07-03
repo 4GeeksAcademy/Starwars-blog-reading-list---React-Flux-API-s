@@ -11,7 +11,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 		},
 		actions: {
 
-			getCharacters: async () => {
+
+
+			getPeople: async () => {
 				try {
 					let response = await fetch("https://www.swapi.tech/api/people");
 					let data = await response.json();
@@ -27,12 +29,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 					let store = getStore();
 					setStore({ ...store, peopleWithDetails, peopleList });
-					console.log("Got characters successfully");
+					console.log("Got people successfully", peopleWithDetails);
 
 				} catch (error) {
 					console.error("Error while getting peoples", error);
 				}
 			},
+
 
 			getPlanets: async () => {
 				try {
