@@ -13,4 +13,5 @@
 - 🌐 **Handling Data Efficiently**: Ensuring efficient data fetch and implementing localStorage for state persistence added complexity but significantly improved the user experience.
 
 
-![Cool GIF]([https://example.com/my-cool-gif.gif](https://github.com/user-attachments/assets/5bbf5771-05b4-4882-81e3-8d3f7d414feb))
+https://github.com/user-attachments/assets/0de2b9cd-02aa-468b-b74c-369eef9ed106
+
